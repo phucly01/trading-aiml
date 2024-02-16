@@ -1,0 +1,6 @@
+
+- a:
+    url: https://api.nasdaq.com/api/quote/[symbol]/historical?assetclass=stocks&fromdate=[date]&limit=9999&todate=[date]&random=4
+    symbols: 
+        - TSLA
+        - CSIQ
