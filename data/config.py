@@ -2,6 +2,7 @@ import configparser
 
 
 class Configuration:
+    db_name = 'stocks'
     db_table_last_read = 'last_read_date'
 
     config = None

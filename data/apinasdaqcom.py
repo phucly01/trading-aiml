@@ -14,8 +14,8 @@ class apinasdaqcom:
 
 
     def download(self, symbol, start_date):
-        if (self.key != None) and self.key:
-            quandl.ApiConfig.api_key = self.key
+        #if (self.key != None) and self.key:
+            #quandl.ApiConfig.api_key = self.key
             now = datetime.today()
             end_date = now.strftime('%Y-%m-%d')
             if(start_date == None):
@@ -33,7 +33,7 @@ class apinasdaqcom:
                                          'User-Agent' : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36'
                                          })
             if resp.ok:
-                return resp.content['data']
+                return resp
             else:
                 print("Get error {}".format(resp.reason))
                 return None
