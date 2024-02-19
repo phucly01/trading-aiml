@@ -56,3 +56,4 @@ class HeikinAshi:
             #volume=True, 
             mav=(3,6,9))
             # ,savefig=imagename)
+        
