@@ -9,7 +9,7 @@ class SourceParser:
     # Each source will be one database, each stock symbol will be one table.
     sources = []
 
-    def __init__(self, path_to_yaml_file, db_obj) -> None:
+    def __init__(self, path_to_yaml_file, db_obj=None) -> None:
         
         with open(path_to_yaml_file, 'r') as stream: 
             try:
@@ -21,7 +21,8 @@ class SourceParser:
                     domain = str(urlparse(url).hostname).replace(".", "")
                     source['name'] = domain
                     try:
-                        last_read_table = db_obj.read('SELECT * from {}.{}'.format(source['name'], Configuration.db_table_last_read))
+                        if db_obj is not None:
+                            last_read_table = db_obj.read('SELECT * from {}.{}'.format(source['name'], Configuration.db_table_last_read))
                     except Exception as err:
                         last_read_table = None
                     start_dates = [] 

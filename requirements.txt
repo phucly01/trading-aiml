@@ -1,0 +1,11 @@
+cassandra_driver==3.29.0
+matplotlib==3.8.3
+mplfinance==0.12.10b0
+numba==0.59.0
+numpy==1.26.4
+pandas==2.2.0
+pymongo==4.6.1
+python_dateutil==2.8.2
+PyYAML==6.0.1
+Quandl==3.7.0
+Requests==2.31.0

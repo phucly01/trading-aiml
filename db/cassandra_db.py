@@ -75,6 +75,24 @@ class CassandraDb(DB):
         for key, value in row:
             query += key+ ','
             values += value+','
-        query = re.sub(',$', ')', query) + re.sub(',$', ')', values)
+        query = re.sub(',$', ')', query) + re.sub(',$', ')', values) + " IF NOT EXISTS"
         return self.session.execute(query)
 
+
+    def writeDataFrame(self, table, df: pd.DataFrame):
+        columns = list(df.columns.values)
+        query = "INSERT INTO {} ({}) VALUES({}) IF NOT EXISTS".format(table, ','.join(columns), ','.join([val.replace(val, "?") for val in columns]))
+        preparedquery = self.session.prepare(query)
+        try:
+            for row in df.loc:
+                values = [row[col] for col in columns]
+                self.session.execute(preparedquery, values)
+        except Exception as err:
+            print(err)
+
+
+    def readDataFrame(self, table):
+        oldfactory = self.session.row_factory
+        self.session.row_factory = self.pd_row_factory
+        resultset = self.session.execute("SELECT * FROM {}".format(table))
+        return resultset._current_rows

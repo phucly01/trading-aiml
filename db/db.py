@@ -1,5 +1,6 @@
 
 import abc; #abstract base classes
+import pandas as pd
 
 class DB(metaclass=abc.ABCMeta):
         
@@ -31,5 +32,11 @@ class DB(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def insert(self, table, row):
         pass
-    
 
+    @abc.abstractmethod
+    def writeDataFrame(self, table, df: pd.DataFrame):
+        pass
+    
+    @abc.abstractmethod
+    def readDataFrame(self, table):
+        pass

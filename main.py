@@ -8,6 +8,10 @@ import ast
 import pandas as pd
 from chart.relativestrengthindex import RSI
 import io
+import json
+from datetime import date
+import matplotlib.pyplot as plot
+from chart.heikinashi import HeikinAshi
 
 
 def init_database(sources, db):
@@ -21,7 +25,7 @@ def init_database(sources, db):
         for symbol in source['symbols']:
             table = "{}.{}".format(Configuration.db_name, symbol)
             if not db.is_table_exist(table):
-                if not db.create_table(table, ['date date', 'open int', 'close int', 'volume bigint', 'high int', 'low int']):
+                if not db.create_table(table, ['date date', 'open float', 'close float', 'volume int', 'high float', 'low float']):
                     print("Error: cannot create table {}".format(table))
                     continue
 
@@ -29,31 +33,48 @@ def init_database(sources, db):
 
 
 def download_data(sources, db : Database):
+    dfs = []
     for source in sp.sources:
         dl = Downloader(source['name'], source['url'], None) #source['key'])
         for i in range(0,len(source['symbols'])):
             symbol = source['symbols'][i]
-            date = source['start_dates'][i]        
-            data = dl.download(symbol, date)
-            pf = pd.read_csv(io.StringIO(data))
+            startdate = source['start_dates'][i]        
+            data = dl.download(symbol, startdate)
+            rows = data.json()['data']['tradesTable']['rows']
+            df = pd.DataFrame(row for row in rows)
+                            
+            df['open'] = df['open'].replace({r'\$':''}, regex=True)
+            df['close'] = df['close'].replace({r'\$':''}, regex=True)
+            df['high'] = df['high'].replace({r'\$':''}, regex=True)
+            df['low'] = df['low'].replace({r'\$':''}, regex=True)
+            df['volume'] = df['volume'].replace({r',':''}, regex=True)
+            #Convert the data types so they are compatible with the database table's
+            datatype = {
+                    'close': float,
+                    'open': float,
+                    'high': float,
+                    'low': float,
+                    'volume':int
+            }
+            df = df.astype(datatype) #Change data type
+            df['date'] = pd.to_datetime(df['date'])
+            df['date'] = df['date'].dt.strftime('%Y-%m-%d') # Change the date format
+            df.sort_values(by=['date'], ascending=True, inplace=True)
+            dfs.append(df)
             if db is not None:
-                pf.to_sql()
-                enddate=date
-                for row in data:
-                    db.insert(symbol, row)
-                    if enddate < row['date']:
-                        enddate = row['date']
-                source['start_dates'][i] = enddate
-            if df is not None:
-                return pd.read_csv()
+                tablename = "{}.{}".format(Configuration.db_name, symbol)
+                # Cannot do the following because the types in pandas and cassandra are incompatible
+                # columns = ["{} {}".format(col, df.dtypes[col]) for col in df.columns]
+                # db.create_table(tablename, columns)
+                db.writeDataFrame(tablename, df)
             
-        
+    return dfs
 
 
 cfg = Configuration('config/config.cfg')
 
 db = Database(cfg.get_section('DATABASE'))
-db.connect()
+#db.connect()
 
 # Each source in sp.sources has the following structure:
 # - name: the name of the soure, which maps to the filename in data folder and also to the database name
@@ -62,23 +83,30 @@ db.connect()
 # - start_dates: the list of start date each correspond to each symbol in symbols list
 sp = SourceParser(cfg.get_section('DATASOURCE')['SourceFile'], db)
 
-init_database(sp.sources, db)
+#init_database(sp.sources, db)
 
-df = pd.DataFrame()
+dfs = download_data(sp.sources, db=None)
 
-download_data(sp.sources, db, df)
+for df in dfs:
+    rsi = RSI(df)
 
-rsi = RSI(df, 14, 3, 3)
+    rsival2 = rsi.rsi()
 
-rsival = rsi.tradingview_rsi(True)
+    stochrsi = rsi.tradingview_stochastic_rsi()
 
-stochrsi = rsi.tradingview_stochastic_rsi()
+    ha = HeikinAshi(df)
 
-print(rsival)
+    hadf = ha.ha()
+    ha.plot(hadf, "Test", "image.png")
 
-print(".....")
+    # df2 = pd.DataFrame({'date': df['date'], 'rsi2':rsival2})
+    # #df3 = pd.DataFrame({'date': df['date'], 'rsi':stochrsi})
 
-print(stochrsi)
+    # ax = df.plot(kind='line', x='date', y='close', color='red')
+    # df2.plot(kind='line', ax=ax, x='date', y='rsi2', color='green')
+    # #df3.plot(kind='line', x='date', y='rsi', color='blue')
+    plot.show()
+    
 
         
 

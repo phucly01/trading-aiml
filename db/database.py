@@ -3,6 +3,7 @@ from pydoc import locate
 from db.db import DB
 import string
 import ast
+import pandas as pd
 
 #This class is THE class to be used in the code.  
 #All other classes in the db folder are the specific definition for individual
@@ -57,3 +58,10 @@ class Database(DB):
 
     def insert(self, table, row):
         return self.db.insert(table, row)
+
+
+    def writeDataFrame(self, table, df: pd.DataFrame):
+        return self.db.writeDataFrame(table, df)
+    
+    def readDataFrame(self, table):
+        return self.db.readDataFrame(table)
