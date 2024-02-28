@@ -17,6 +17,7 @@ class Downloader:
                 fromdate = now - tenyears
                 date = now.strftime('%Y-%m-%d')
                 url = url.replace('[date]', fromdate.strftime('%Y-%m-%d'), 1).replace('[date]', date)
+                print("Loading ", str(classname), " from ", str(module), name)
                 self.dl = classname(url, key)
             else:
                 print("Class data.{}.{} is not found".format(name, name))

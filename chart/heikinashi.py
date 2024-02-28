@@ -38,7 +38,7 @@ class HeikinAshi:
             ha_low.append(min(low[i], ha_close[i], ha_open[i]))
 
         ha_data = {'date': self.data['date'], 'close': ha_close, 'open': ha_open, 'high': ha_high, 'low': ha_low}
-        df = pd.DataFrame(ha_data);
+        df = pd.DataFrame(ha_data)
         df.index = pd.DatetimeIndex(df['date'])
         return df
     

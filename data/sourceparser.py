@@ -20,6 +20,7 @@ class SourceParser:
                     url = source['url']
                     domain = str(urlparse(url).hostname).replace(".", "")
                     source['name'] = domain
+                    last_read_table = None
                     try:
                         if db_obj is not None:
                             last_read_table = db_obj.read('SELECT * from {}.{}'.format(source['name'], Configuration.db_table_last_read))

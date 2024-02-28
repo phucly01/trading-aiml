@@ -6,28 +6,38 @@ cd ${SCRIPT_DIR}
 
 echo "Creating Virtual Environment"
 
-if [ -z "`pip list | grep virtualenv`" ]; then
-    #Install virtualenv instead of using python -m env.  Virtualenv handles vboxsf better.
-    echo "Installing virtualenv module"
-    pip install virtualenv
-fi
+# if [ -z "`pip list | grep virtualenv`" ]; then
+#     #Install virtualenv instead of using python -m env.  Virtualenv handles vboxsf better.
+#     echo "Installing virtualenv module"
+#     pip install virtualenv
+# fi
 
-#python -m venv --copies ./env
-virtualenv ./env   #Try default options via symbolic links first
+envdirpath=${SCRIPT_DIR}/venv
+
+python3 -m virtualenv ${envdirpath}
+# virtualenv ./venv   #Try default options via symbolic links first
 if [ "$?" -ne 0 ]; then
     echo "Symbolic links isn't allowed.  Trying copies"
-    virtualenv --always-copy ./env
+    # virtualenv --always-copy ./venv
+    python3 -m virtualenv --copies ${envdirpath}
+    if [ "$?" -ne 0 ]; then
+        rm -rf ${envdirpath}
+        echo "--copies option isn't working.  Trying a different path"
+        projname=`basename ${SCRIPT_DIR}`
+        envdirpath="${HOME}/.${projname}venv"
+        python3 -m virtualenv ${envdirpath}
+    fi
 fi
 
-if [ -d ${SCRIPT_DIR}/env/Scripts ]; then
+if [ -d ${envdirpath}/Scripts ]; then
     echo "Activating Virtual Environment"
-    pushd ${SCRIPT_DIR}/env/Scripts
-    ./activate
+    pushd ${envdirpath}/Scripts
+    source ./activate
     popd
-elif [ -d ${SCRIPT_DIR}/env/bin ]; then
+elif [ -d ${envdirpath}/bin ]; then
     echo "Activating Virtual Environment"
-    pushd ${SCRIPT_DIR}/env/bin
-    ./activate
+    pushd ${envdirpath}/bin
+    source ./activate
     popd
 fi
 

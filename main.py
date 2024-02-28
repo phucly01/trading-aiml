@@ -1,4 +1,4 @@
-from db.cassandra_db import CassandraDb
+#from db.cassandra_db import CassandraDb
 from db.db import DB
 from data.downloader import Downloader
 from data.sourceparser import SourceParser
@@ -6,12 +6,16 @@ from data.config import Configuration
 from db.database import Database
 import ast
 import pandas as pd
+import numpy as np
 from chart.relativestrengthindex import RSI
 import io
 import json
 from datetime import date
 import matplotlib.pyplot as plot
 from chart.heikinashi import HeikinAshi
+from aiml.tensorflowml import TensorFlow, TensorFlowMLAdam
+import aiml.rockikz_x4nth055
+from aiml.rockikz_x4nth055 import Rockikz_x4nth055
 
 
 def init_database(sources, db):
@@ -42,7 +46,6 @@ def download_data(sources, db : Database):
             data = dl.download(symbol, startdate)
             rows = data.json()['data']['tradesTable']['rows']
             df = pd.DataFrame(row for row in rows)
-                            
             df['open'] = df['open'].replace({r'\$':''}, regex=True)
             df['close'] = df['close'].replace({r'\$':''}, regex=True)
             df['high'] = df['high'].replace({r'\$':''}, regex=True)
@@ -50,6 +53,7 @@ def download_data(sources, db : Database):
             df['volume'] = df['volume'].replace({r',':''}, regex=True)
             #Convert the data types so they are compatible with the database table's
             datatype = {
+                    'date': 'datetime64[ns]',
                     'close': float,
                     'open': float,
                     'high': float,
@@ -59,6 +63,7 @@ def download_data(sources, db : Database):
             df = df.astype(datatype) #Change data type
             df['date'] = pd.to_datetime(df['date'])
             df['date'] = df['date'].dt.strftime('%Y-%m-%d') # Change the date format
+            #print(df.dtypes)
             df.sort_values(by=['date'], ascending=True, inplace=True)
             dfs.append(df)
             if db is not None:
@@ -73,7 +78,7 @@ def download_data(sources, db : Database):
 
 cfg = Configuration('config/config.cfg')
 
-db = Database(cfg.get_section('DATABASE'))
+#db = Database(cfg.get_section('DATABASE'))
 #db.connect()
 
 # Each source in sp.sources has the following structure:
@@ -81,31 +86,44 @@ db = Database(cfg.get_section('DATABASE'))
 # - url: the url where the data is downloaded
 # - symbols: the list of symbols whose data is downloaded, each symbol is a table name under the database
 # - start_dates: the list of start date each correspond to each symbol in symbols list
-sp = SourceParser(cfg.get_section('DATASOURCE')['SourceFile'], db)
+sp = SourceParser(cfg.get_section('DATASOURCE')['SourceFile'])#, db)
 
 #init_database(sp.sources, db)
 
 dfs = download_data(sp.sources, db=None)
 
-for df in dfs:
-    rsi = RSI(df)
+for datf in dfs:
+    print(datf["date"].dtypes.name)
+    rsi = RSI(datf)
 
     rsival2 = rsi.rsi()
 
     stochrsi = rsi.tradingview_stochastic_rsi()
 
-    ha = HeikinAshi(df)
+    ha = HeikinAshi(datf)
 
     hadf = ha.ha()
-    ha.plot(hadf, "Test", "image.png")
-
+    #ha.plot(hadf, "Test", "image.png")
+    print(datf["date"].dtypes.name)
+    # tf = TensorFlowML(df.ticker, df, "date", ["close", "open", "high", "low"])
+    tf = TensorFlowMLAdam("TSLA", datf, "date", "close")
+    tf.train()
+    tf.test()
+    tf.predict()
+    tf.plot(30)
+    
+    # rx = Rockikz_x4nth055()
+    # rx.train(datf)
+    # rx.show_prediction()
+    
+    
     # df2 = pd.DataFrame({'date': df['date'], 'rsi2':rsival2})
     # #df3 = pd.DataFrame({'date': df['date'], 'rsi':stochrsi})
 
     # ax = df.plot(kind='line', x='date', y='close', color='red')
     # df2.plot(kind='line', ax=ax, x='date', y='rsi2', color='green')
     # #df3.plot(kind='line', x='date', y='rsi', color='blue')
-    plot.show()
+    # plot.show()
     
 
         

@@ -1,1 +1,11 @@
 env/
+venv/
+dist/
+results/
+build/
+logs/
+*.pdf
+__pycache__/
+csv-results/
+*.pyc
+main.spec

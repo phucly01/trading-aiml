@@ -1,11 +1,11 @@
-import db;
-from pymongo import MongoClient;
+# import db;
+# from pymongo import MongoClient;
 
 
-class mongodb(db):
+# class mongodb(db):
 
-    def __init__(self):
-        pass
+#     def __init__(self):
+#         pass
 
-    def connect():
-        pass
+#     def connect():
+#         pass
