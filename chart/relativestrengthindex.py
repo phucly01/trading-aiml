@@ -17,7 +17,7 @@ class RSI:
         """
         delta = np.append([0], np.diff(close)) #Delta will be one less element, so insert one to make up
         avggain = np.sum(delta[0:period].clip(min=0))/period
-        avgloss = np.sum(delta[0:period].clip(max=0))/period
+        avgloss = abs(np.sum(delta[0:period].clip(max=0)))/period
         
         data = np.empty(delta.shape[0])
         data.fill(np.nan)

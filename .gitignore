@@ -9,3 +9,5 @@ __pycache__/
 csv-results/
 *.pyc
 main.spec
+db/__pycache__/db.cpython-312.pyc
+chart/__pycache__/heikinashi.cpython-310.pyc

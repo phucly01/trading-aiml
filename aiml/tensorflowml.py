@@ -302,7 +302,7 @@ class TensorFlowMLAdam:
         # previous = [(previous + datetime.timedelta(days=i)).isoformat() for i in range(self.future_steps)]  #Create a list dates starting from yesterday
         
         fig = plot.figure(figsize=(10, 8))
-        fig.autofmt_xdate(rotation=45)
+        fig.xticks(rotation=45, ha='right')
         plot.plot(index, data)
         plot.plot(future_index, future_data)
         plot.grid(visible=True, axis='both', which='both')
