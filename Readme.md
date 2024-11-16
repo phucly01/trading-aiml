@@ -1,8 +1,10 @@
 #About
+
 This project utilizes some of the machine learning models from TensorFlow for stock prediction.  
 
 
 #Project Preparation
+
 ##Prerequisites
 
 - Create virtual environment:
