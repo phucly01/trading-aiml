@@ -1,4 +1,9 @@
-Prerequisites:
+#About
+This project utilizes some of the machine learning models from TensorFlow for stock prediction.  
+
+
+#Project Preparation
+##Prerequisites
 
 - Create virtual environment:
   - Note: This project was created via Python 3
@@ -16,8 +21,8 @@ Prerequisites:
     - Go to the tensorflow directory and run 'python configure.py'
       - During the configuration there are a couple of options to pick from:
         - ROCm - this provides a set of supports for utilizing GPU.  You may want to say no to this if you are using VM or on old computers where GPU isn't available.
+       
         - 
-- 
 - Install cassandra database via docker container.
   - Install Oracle Linux 9 OS on a VM or hardware.
   - Set the network interface as bridge and select the physical interface.
